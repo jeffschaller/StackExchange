@@ -1,0 +1,172 @@
+# TODO
+# - once nodes are settled, use headlabel/taillabel/label to put labels in best places
+# see also: labeldistance
+
+# DONE
+# - color the close-type lines & boxes
+# 	available colors: http://www.graphviz.org/doc/info/colors.html
+# - change all nodes to be "quoted more readable"
+# - make sure there are no more intermediate decision nodes
+# - yellow is too hard to read
+# - bisque is too hard to read
+# - use dotted & dashed lines -- maybe for Skip & Leave Open?
+# -- dotted for Skip
+# -- dashed for Want to Leave Open
+# make every node have spaces "in it like this"
+# credit to https://stackoverflow.com/q/2649781/4957508 for using nodesep to
+#   space the chart out vertically a bit
+ 
+#
+# close types:
+#* (1) duplicate
+#* (7) off-topic: norepro, xpost, learning, other-meta, other-SO, other-their-custom, other-my-custom
+#* (1) unclear
+#* (1) broad
+#* (1) opinion-based
+####
+#* (1) skip
+#* (2) edit, leave open
+#
+# similar colors:
+# - edit,leaveopen
+# - other-meta, other-SO
+
+# maximally contrasting colors, from:
+# https://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d
+# to:
+# http://www.iscc.org/pdf/PC54_1724_001.pdf
+# white		-skip
+# black		- black		-> use for 'leave open'
+# yellow	- yellow 	-> Unsure
+# purple	- purple	-> LearningMat
+# orange	- orange	-> to SO
+# light blue	- lightblue	-> OpinionBased
+# red		- red		-> Unclear
+# buff ?	- bisque	-> Duplicate --> greenyellow
+# gray		- gray		-> XPost
+# green		- green		-> to Meta
+# purplish pink	- hotpink4	-> too broad
+# blue		- blue		-> no repro
+# yellowish pink	- lightpink	 -> custom reason -> no - brown2
+# violet	- violet	-> close for other reason
+# orange yellow	- yellow3?
+# purplish red	- mediumvioletred	-> unsure/skip, isntead of yellow
+# greenish yellow	- yellow3
+# reddish brown	- brown2	-> custom reason
+# yellow green	- greenyellow
+# yellowish brown	- sandybrown
+# reddish orange	- orangered
+# olive green	- olivedrab
+
+
+# dot -T png < close-q.dot > ~/public_html/close-q.png
+
+digraph closeQ {
+	overlap=scalexy;
+	rankdir="LR";
+	node [shape=oval];
+	nodesep=0.75;
+	#edge [weight=0.5];
+	labelfloat=false;
+
+	"Read Q and Comments" -> "Understand the Question";
+	"Understand the Question" -> "See Score and Author/Rep" [headlabel="I understand it"];
+	"See Score and Author/Rep" -> "Optionally Up- or Down-vote";
+	"Optionally Up- or Down-vote" -> "Optionally Leave a Comment";
+	"Optionally Leave a Comment" -> "Incoming Close Type";
+
+	"Understand the Question" -> Skip [style=dotted,color=mediumvioletred,taillabel="Unsure",fontcolor=mediumvioletred];
+
+	"Incoming Close Type" [shape=diamond];
+	"Incoming Close Type" -> "Is a Duplicate";
+	"Incoming Close Type" -> "Off-Topic, NoRepro";
+	"Incoming Close Type" -> "Off-Topic, Cross-Post";
+	"Incoming Close Type" -> "Off-Topic, Learning Materials";
+	"Incoming Close Type" -> "Off-Topic, To Meta";
+	"Incoming Close Type" -> "Off-Topic, to SO";
+	"Incoming Close Type" -> "Off-Topic, other";
+	"Incoming Close Type" -> "Unclear What You're Asking";
+	"Incoming Close Type" -> "Too Broad";
+	"Incoming Close Type" -> "Opinion-based";
+
+	"Is a Duplicate" -> "Understand the Duplicate Q";
+	"Understand the Duplicate Q" [shape=diamond];
+	"Understand the Duplicate Q" -> "VTC As A Duplicate" [color=greenyellow,taillabel="Agree, it's a Duplicate",fontcolor=greenyellow];
+	"VTC As A Duplicate" [shape=box,color=greenyellow];
+	"Understand the Duplicate Q" -> WantToLeaveOpen [style=dashed,taillabel="Disagree, it's not a Duplicate"];
+	"Understand the Duplicate Q" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Off-Topic, NoRepro" -> "VTC Not Reproducible" [label="Q or Comments indicate norepro",color=blue,fontcolor=blue];
+	"Off-Topic, NoRepro" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+	"VTC Not Reproducible" [shape=box,color=blue];
+	"Off-Topic, NoRepro" -> WantToLeaveOpen [style=dashed,taillabel="Disagree"];
+	"Off-Topic, NoRepro" [shape=diamond];
+
+	"Off-Topic, Cross-Post" -> "Look for Cross-post";
+	"Look for Cross-post" [shape=diamond];
+	"Look for Cross-post" -> "Optionally Comment 'Cross-post is Gone'" [style=dashed,label="Cross-post is gone"];
+	"Optionally Comment 'Cross-post is Gone'" -> WantToLeaveOpen [style=dashed];
+	"Optionally Comment 'Cross-post is Gone'" -> "Incoming Close Type" [label="Cross-post is gone, but close for other reason"];
+	"Look for Cross-post" -> "VTC Cross-post" [color=gray,label="Cross-post exists",fontcolor=gray];
+	"VTC Cross-post" [shape=box,color=gray];
+	"Look for Cross-post" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Off-Topic, Learning Materials" [shape=diamond, color=purple];
+	"Off-Topic, Learning Materials" -> "VTC Off-Topic, Learning Materials" [label="Agree",color=purple,fontcolor=purple];
+	"VTC Off-Topic, Learning Materials" [shape=box,color=purple];
+	"Off-Topic, Learning Materials" -> WantToLeaveOpen [style=dashed,taillabel="Disagree"];
+	"Off-Topic, Learning Materials" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Off-Topic, To Meta" [shape=diamond];
+	"Off-Topic, To Meta" -> "VTC to Meta" [color=green,label="Asks How Site Works",fontcolor=green];
+	"VTC to Meta" [shape=box,color=green];
+	"Off-Topic, To Meta" -> WantToLeaveOpen [style=dashed,label="Does Not Ask How Site Works"];
+	"Off-Topic, To Meta" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Off-Topic, to SO" [shape=diamond,color=orange];
+	"Off-Topic, to SO" -> "To SO, or Unclear" [headlabel="Primarily Programming"];
+	"To SO, or Unclear" -> "VTC to SO" [taillabel="Is Otherwise Clear",color=orange,fontcolor=orange];
+	"To SO, or Unclear" -> "VTC Unclear" [color=red,label="Is not clear",fontcolor=red];
+
+	"Off-Topic, to SO" -> WantToLeaveOpen [style=dashed,label="Clear and not primarily programming"];
+	"Off-Topic, to SO" -> "VTC Unclear" [label="Unclear, but on-topic here",fontcolor=red,color=red];
+	"VTC to SO" [shape=box,color=orange];
+	"Off-Topic, to SO" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Off-Topic, other" [shape=diamond];
+	"Off-Topic, other" -> "VTC with existing custom reason" [taillabel="Agree with custom reason",color=brown2,fontcolor=brown2];
+	"VTC with existing custom reason" [shape=box,color=brown2];
+	"Off-Topic, other" -> "Disagree with existing custom reason" [taillabel="Disagree with custom reason"];
+	"Disagree with existing custom reason" -> "VTC with my custom reason" [color=brown2,taillabel="Close with my own custom reason",fontcolor=brown2];
+	"Disagree with existing custom reason" -> WantToLeaveOpen [style=dashed];
+	"Disagree with existing custom reason" -> "Incoming Close Type" [taillabel="Close for other reason",color=violet,fontcolor=violet];
+	"VTC with my custom reason" [shape=box,color=brown2];
+
+	"Unclear What You're Asking" [shape=diamond];
+	"Unclear What You're Asking" -> "VTC Unclear" [color=red,taillabel="Agree, it's not clear",fontcolor=red];
+	"VTC Unclear" [shape=box,color=red];
+	"Unclear What You're Asking" -> WantToLeaveOpen [style=dashed,taillabel="Disagree, it's clear"];
+	"Unclear What You're Asking" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Too Broad" [shape=diamond];
+	"Too Broad" -> "VTC Too Broad" [label="Agree",color=hotpink4,fontcolor=hotpink4];
+	"VTC Too Broad" [shape=box,color=hotpink4];
+	"Too Broad" -> WantToLeaveOpen [style=dashed,taillabel="Disagree"];
+	"Too Broad" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	"Opinion-based" [shape=diamond];
+	"Opinion-based" -> "VTC Opinion-Based" [color=lightblue,fontcolor=lightblue,taillabel="Is Opinion-Based"];
+	"VTC Opinion-Based" [shape=box,color=lightblue];
+	"Opinion-based" -> WantToLeaveOpen [style=dashed,taillabel="Is Not Opinion-Based"];
+	"Opinion-based" -> Skip [style=dotted,taillabel="Unsure",color=mediumvioletred,fontcolor=mediumvioletred];
+
+	WantToLeaveOpen;
+	WantToLeaveOpen -> OptionallyEditQ;
+	OptionallyEditQ [shape=box];
+	WantToLeaveOpen -> "Vote to Leave Open";
+	"Vote to Leave Open" [shape=box];
+
+	# can you up/down-vote in the close-queu? No -- open in new tab to do so
+
+	Skip [color=mediumvioletred,shape=box];
+}
