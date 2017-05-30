@@ -69,13 +69,13 @@ digraph closeQ {
 	#edge [weight=0.5];
 	labelfloat=false;
 
-	"Read Q and Comments" -> "Understand the Question";
-	"Understand the Question" -> "See Score and Author/Rep" [headlabel="I understand it"];
-	"See Score and Author/Rep" -> "Optionally Up- or Down-vote";
-	"Optionally Up- or Down-vote" -> "Optionally Leave a Comment";
-	"Optionally Leave a Comment" -> "Incoming Close Type";
+	#"Read Q and Comments" -> "Understand the Question";
+	#"Understand the Question" -> "See Score and Author/Rep" [headlabel="I understand it"];
+	#"See Score and Author/Rep" -> "Optionally Up- or Down-vote";
+	#"Optionally Up- or Down-vote" -> "Optionally Leave a Comment";
+	#"Optionally Leave a Comment" -> "Incoming Close Type";
 
-	"Understand the Question" -> Skip [style=dotted,color=mediumvioletred,taillabel="Unsure",fontcolor=mediumvioletred];
+	#"Understand the Question" -> Skip [style=dotted,color=mediumvioletred,taillabel="Unsure",fontcolor=mediumvioletred];
 
 	"Incoming Close Type" [shape=diamond];
 	"Incoming Close Type" -> "Is a Duplicate";
